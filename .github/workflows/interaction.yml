@@ -2,14 +2,15 @@ name: interaction-test
 
 on:
   push:
-    branches: ["main"]
+    branches: [ main ]
+  pull_request:
 
 jobs:
   interaction:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -18,16 +19,20 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build game
         run: npm run build
 
       - name: Start static server
-        run: npx serve -s dist &
+        run: npx serve -s dist -l 4173 &
       
       - name: Wait for server
         run: npx wait-on http://localhost:4173
 
       - name: Run interaction test
-        run: node tests/interaction.js
+        env:
+          PUPPETEER_EXECUTABLE_PATH: ""
+        run: |
+          node tests/interaction.js
+        continue-on-error: false
