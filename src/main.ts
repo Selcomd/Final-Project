@@ -1,4 +1,3 @@
-//check
 import * as CANNON from "cannon-es";
 import { initRenderer, renderLoop } from "./renderer";
 import { initPhysics, physicsWorld } from "./physics";
