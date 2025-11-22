@@ -19,7 +19,7 @@ export function initRenderer() {
     75,
     window.innerWidth / window.innerHeight,
     0.1,
-    100
+    100,
   );
   camera.position.set(5, 8, 12);
 
@@ -73,11 +73,11 @@ export function renderLoop() {
 
     const distance = 12;
 
-    camera.position.x =
-      target.x + distance * Math.cos(cameraPitch) * Math.sin(cameraYaw);
+    camera.position.x = target.x +
+      distance * Math.cos(cameraPitch) * Math.sin(cameraYaw);
     camera.position.y = target.y + distance * Math.sin(cameraPitch);
-    camera.position.z =
-      target.z + distance * Math.cos(cameraPitch) * Math.cos(cameraYaw);
+    camera.position.z = target.z +
+      distance * Math.cos(cameraPitch) * Math.cos(cameraYaw);
 
     camera.lookAt(target.x, target.y, target.z);
   }

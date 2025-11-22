@@ -14,7 +14,7 @@ export let goalReached = false;
 export function setupGameObjects() {
   const floorMesh = new THREE.Mesh(
     new THREE.BoxGeometry(10, 1, 10),
-    new THREE.MeshStandardMaterial({ color: 0x333333 })
+    new THREE.MeshStandardMaterial({ color: 0x333333 }),
   );
   floorMesh.position.y = -0.5;
   scene.add(floorMesh);
@@ -32,11 +32,11 @@ export function setupGameObjects() {
     z: number,
     w: number,
     h: number,
-    d: number
+    d: number,
   ) {
     const wallMesh = new THREE.Mesh(
       new THREE.BoxGeometry(w, h, d),
-      new THREE.MeshStandardMaterial({ color: 0x333333 })
+      new THREE.MeshStandardMaterial({ color: 0x333333 }),
     );
     wallMesh.position.set(x, y, z);
     scene.add(wallMesh);
@@ -58,7 +58,7 @@ export function setupGameObjects() {
     -5 + wallThickness / 2,
     10,
     wallHeight,
-    wallThickness
+    wallThickness,
   );
   makeWall(
     0,
@@ -66,7 +66,7 @@ export function setupGameObjects() {
     5 - wallThickness / 2,
     10,
     wallHeight,
-    wallThickness
+    wallThickness,
   );
   makeWall(
     -5 + wallThickness / 2,
@@ -74,7 +74,7 @@ export function setupGameObjects() {
     0,
     wallThickness,
     wallHeight,
-    10
+    10,
   );
   makeWall(
     5 - wallThickness / 2,
@@ -82,12 +82,12 @@ export function setupGameObjects() {
     0,
     wallThickness,
     wallHeight,
-    10
+    10,
   );
 
   ballMesh = new THREE.Mesh(
     new THREE.SphereGeometry(0.5),
-    new THREE.MeshStandardMaterial({ color: 0xff3333 })
+    new THREE.MeshStandardMaterial({ color: 0xff3333 }),
   );
   scene.add(ballMesh);
 
@@ -104,7 +104,7 @@ export function setupGameObjects() {
     new THREE.MeshStandardMaterial({
       color: 0x00ff88,
       emissive: 0x003300,
-    })
+    }),
   );
   goalMesh.position.set(0, 0.1, -4);
   scene.add(goalMesh);

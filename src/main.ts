@@ -1,12 +1,7 @@
 import * as CANNON from "cannon-es";
 import { initRenderer, renderLoop } from "./renderer";
 import { initPhysics, physicsWorld } from "./physics";
-import {
-  setupGameObjects,
-  ballBody,
-  goalBody,
-  goalReached,
-} from "./game";
+import { ballBody, goalBody, goalReached, setupGameObjects } from "./game";
 
 const keys: Record<string, boolean> = {};
 
