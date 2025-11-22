@@ -80,3 +80,11 @@ game ourselves by integrating rendering, physics, controls, state management,
 and automated workflows without relying on a full game engine like Unity.
 
 ---
+
+## How we satisfied the software requirements
+
+Our project meets all F1 requirements by building the game using TypeScript and Vite which provide no built in rendering or physics. We then added Three.js to stand in as our third-party 3D rendering library and cannon-es as our physics engine. The player is able to interact with the physics system using keyboard inputs and the resulting motion, collision and force determines whether they succeed or fail at the puzzle(while it is currently really simple). We also added before-commit checks using automation with husky and lint-staged, which checks formatting and linting on every commit. We also added post-push automation using Github actions including automatic build/deployment to pages, automatic screenshot testing, and automated interaction testing. With all of the steps we fully covered the specification for F1.
+
+## Reflection
+
+Completing all of the F1 requirements made us rethink how much infrastructure a browser game needs beyond just the gameplay code. Especially when using a platform that doesn't already integrate 3D rendering and physics. Early on we assumed that physics and graphics integration would be easy but working with both Three.js and cannon-es made is slightly difficult to pair the two but became easier the more familarized we became with them. Adding automation also changed our workflow because it helped us catch our issues early on instead of coming across them later on. Overall, as a team we shifted from focusing on just individual features that we needed to complete the specification and began thinking about the project as a whole with rendering, physics, and automation supporting each other at each step which has changed how we plan to attempt the rest of the project.
