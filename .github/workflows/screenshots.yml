@@ -1,0 +1,30 @@
+name: Take Screenshot
+
+on:
+  push:
+    branches: ["main"]
+
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - run: npm install
+
+      - name: Run screenshot script
+        run: node ./tests/screenshots.js
+
+      - name: Upload screenshot artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshot
+          path: screenshot.png
