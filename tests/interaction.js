@@ -5,23 +5,15 @@ async function run() {
 
   const browser = await puppeteer.launch({
     headless: "new",
-    executablePath: puppeteer.executablePath(),
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-gpu",
-      "--disable-dev-shm-usage",
-    ],
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   const page = await browser.newPage();
 
-  await page.goto("http://localhost:4173", {
-    waitUntil: "networkidle0",
-  });
+  await page.goto("http://localhost:4173", { waitUntil: "networkidle0" });
 
   await page.keyboard.down("w");
-  await page.waitForTimeout(1000);
+  await new Promise(r => setTimeout(r, 1000));
   await page.keyboard.up("w");
 
   console.log("Movement input simulated.");
