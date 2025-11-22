@@ -8,21 +8,19 @@ async function run() {
 
   const page = await browser.newPage();
 
-  const url = "https://selcomd.github.io/Final-Project/";
-
-  console.log("Opening:", url);
-  await page.goto(url, { waitUntil: "networkidle0", timeout: 60000 });
-
-  await page.waitForSelector("canvas");
-
-  await page.waitForTimeout(2000);
-
-  await page.screenshot({
-    path: "screenshot.png",
-    fullPage: false
+  console.log("Opening game for screenshot...");
+  
+  await page.goto("http://localhost:4173", {
+    waitUntil: "networkidle0",
+    timeout: 60000
   });
 
-  console.log("Screenshot saved as screenshot.png");
+  console.log("Taking screenshot...");
+
+  await page.screenshot({ path: "screenshot.png", fullPage: true });
+
+  console.log("Screenshot saved!");
+
   await browser.close();
 }
 
