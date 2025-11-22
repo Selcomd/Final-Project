@@ -3,14 +3,13 @@ name: screenshot-test
 on:
   push:
     branches: ["main"]
-  workflow_dispatch:
 
 jobs:
   screenshot:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -25,10 +24,9 @@ jobs:
         run: npm run build
 
       - name: Start static server
-        run: |
-          npx serve -s dist -l 4173 &
-      
-      - name: Wait for Vite
+        run: npx serve -s dist &
+
+      - name: Wait for server
         run: npx wait-on http://localhost:4173
 
       - name: Run screenshot script
@@ -37,5 +35,5 @@ jobs:
       - name: Upload screenshot artifact
         uses: actions/upload-artifact@v4
         with:
-          name: screenshot
+          name: game-screenshot
           path: screenshot.png
