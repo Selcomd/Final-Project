@@ -1,11 +1,12 @@
-name: Interaction Test
+name: interaction-test
 
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 jobs:
-  interaction-test:
+  interaction:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,7 +17,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          check-latest: true
 
       - name: Install dependencies
         run: npm install
@@ -25,7 +25,11 @@ jobs:
         run: npm run build
 
       - name: Start static server
-        run: npx http-server ./dist &
+        run: |
+          npx serve -s dist -l 4173 &
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:4173
 
       - name: Run interaction test
         run: node tests/interaction.js

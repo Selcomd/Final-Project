@@ -1,23 +1,20 @@
 import puppeteer from "puppeteer";
 
-async function run() {
+(async () => {
+  console.log("Running interaction test...");
+
   const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    headless: "new"
   });
 
   const page = await browser.newPage();
+  await page.goto("http://localhost:4173/", { waitUntil: "networkidle0" });
 
-  console.log("Opening game...");
+  await page.keyboard.down("ArrowUp");
+  await page.waitForTimeout(250);
+  await page.keyboard.up("ArrowUp");
 
-  await page.goto("http://localhost:4173", {
-    waitUntil: "networkidle0",
-    timeout: 60000
-  });
-
-  console.log("Game loaded successfully!");
+  console.log("Interaction completed successfully.");
 
   await browser.close();
-}
-
-run();
+})();
