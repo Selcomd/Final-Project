@@ -66,7 +66,7 @@ window.addEventListener("mousemove", (event) => {
   raycaster.setFromCamera(mouse, camera);
 
   if (isDraggingBox) {
-    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); // y = 0 plane
+    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
     const point = new THREE.Vector3();
     if (raycaster.ray.intersectPlane(plane, point)) {
       dragBoxTo(point.x, point.z);
