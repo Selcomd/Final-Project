@@ -13,7 +13,9 @@ let lastMouseY = 0;
 
 export function initRenderer() {
   scene = new THREE.Scene();
-  scene.background = new THREE.Color("#FFB6C1");
+
+  scene.background = new THREE.Color(0x111827);
+  scene.fog = new THREE.Fog(0x111827, 20, 80);
 
   camera = new THREE.PerspectiveCamera(
     75,
@@ -70,14 +72,13 @@ export function initRenderer() {
 export function renderLoop() {
   if (ballBody) {
     const target = ballBody.position;
-
     const distance = 12;
 
-    camera.position.x = target.x +
-      distance * Math.cos(cameraPitch) * Math.sin(cameraYaw);
+    camera.position.x =
+      target.x + distance * Math.cos(cameraPitch) * Math.sin(cameraYaw);
     camera.position.y = target.y + distance * Math.sin(cameraPitch);
-    camera.position.z = target.z +
-      distance * Math.cos(cameraPitch) * Math.cos(cameraYaw);
+    camera.position.z =
+      target.z + distance * Math.cos(cameraPitch) * Math.cos(cameraYaw);
 
     camera.lookAt(target.x, target.y, target.z);
   }
