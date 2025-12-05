@@ -21,16 +21,12 @@ const COLORS = {
   floorFinalFront: 0x111827,
   floorFinalBack: 0x111827,
   wall: 0x374151,
-
   key: 0xffd54f,
-
   doorUsable: 0x22c55e,
   doorLocked: 0xef4444,
-
   box: 0x8d6e63,
   buttonOff: 0x6b7280,
   buttonOn: 0x22c55e,
-
   rope: 0xcbd5e1,
   goal: 0x34d399,
 };
@@ -40,7 +36,6 @@ let inventoryDiv: HTMLDivElement | null = null;
 
 function ensureInventoryUI() {
   if (inventoryDiv) return;
-
   const div = document.createElement("div");
   div.style.position = "absolute";
   div.style.left = "10px";
@@ -53,7 +48,6 @@ function ensureInventoryUI() {
   div.style.borderRadius = "6px";
   div.style.border = "1px solid rgba(148,163,184,0.8)";
   div.style.pointerEvents = "none";
-
   document.body.appendChild(div);
   inventoryDiv = div;
   updateInventoryUI();
@@ -122,16 +116,10 @@ function addRoomBody(body: CANNON.Body) {
 }
 
 function clearCurrentRoom() {
-  for (const m of roomMeshes) {
-    scene.remove(m);
-  }
+  for (const m of roomMeshes) scene.remove(m);
   roomMeshes.length = 0;
-
-  for (const b of roomBodies) {
-    physicsWorld.removeBody(b);
-  }
+  for (const b of roomBodies) physicsWorld.removeBody(b);
   roomBodies.length = 0;
-
   boxBody = null;
   boxMesh = null;
   buttonMesh = null;
@@ -142,7 +130,6 @@ function clearCurrentRoom() {
 
 function ensurePlayerBall() {
   if (ballBody && ballMesh) return;
-
   ballMesh = new THREE.Mesh(
     new THREE.SphereGeometry(0.5, 32, 32),
     new THREE.MeshStandardMaterial({
@@ -152,7 +139,6 @@ function ensurePlayerBall() {
     }),
   );
   scene.add(ballMesh);
-
   ballBody = new CANNON.Body({
     mass: 3,
     shape: new CANNON.Sphere(0.5),
@@ -162,10 +148,8 @@ function ensurePlayerBall() {
   physicsWorld.addBody(ballBody);
 
   function sync() {
-    ballMesh.position.copy(ballBody.position as unknown as THREE.Vector3);
-    ballMesh.quaternion.copy(
-      ballBody.quaternion as unknown as THREE.Quaternion,
-    );
+    ballMesh.position.copy(ballBody.position as any);
+    ballMesh.quaternion.copy(ballBody.quaternion as any);
     requestAnimationFrame(sync);
   }
   sync();
@@ -188,7 +172,6 @@ function makeFloor(width: number, depth: number, y: number, color: number) {
   );
   floorMesh.position.y = y;
   addRoomMesh(floorMesh);
-
   const floorBody = new CANNON.Body({
     mass: 0,
     position: new CANNON.Vec3(0, y, 0),
@@ -244,15 +227,11 @@ function makeDoor(
     new THREE.BoxGeometry(1, 2, 0.2),
     new THREE.MeshStandardMaterial(),
   );
-
   doorMesh.position.set(x, 1, z);
-
   doorMesh.rotation.y = Math.PI / 2;
-
   doorMesh.userData.interactive = true;
   doorMesh.userData.type = "door";
   doorMesh.userData.targetRoom = target;
-
   setDoorUsableVisual(doorMesh, usable);
   addRoomMesh(doorMesh);
   return doorMesh;
@@ -260,7 +239,6 @@ function makeDoor(
 
 function buildMainRoom() {
   makeFloor(10, 10, -0.5, COLORS.floorMain);
-
   const wallThickness = 0.5;
   const wallHeight = 2;
 
@@ -327,7 +305,6 @@ function buildMainRoom() {
 
 function buildMiddleRoom() {
   makeFloor(10, 10, -0.5, COLORS.floorMiddle);
-
   const wallThickness = 0.5;
   const wallHeight = 2;
 
@@ -412,7 +389,84 @@ function buildMiddleRoom() {
   movePlayerTo(-3, 1, 0);
 }
 
+let beam1Mesh: THREE.Mesh | null = null;
+let beam2Mesh: THREE.Mesh | null = null;
+
+let wobbleTimer = 0;
+let wobbleAmount = 0;
+let onBeam = false;
+
+let balanceDiv: HTMLDivElement | null = null;
+
+function ensureBalanceUI() {
+  if (balanceDiv) return;
+  const div = document.createElement("div");
+  div.style.position = "absolute";
+  div.style.right = "10px";
+  div.style.top = "10px";
+  div.style.width = "160px";
+  div.style.height = "20px";
+  div.style.background = "rgba(0,0,0,0.4)";
+  div.style.border = "1px solid white";
+  div.style.borderRadius = "4px";
+
+  const fill = document.createElement("div");
+  fill.id = "balanceFill";
+  fill.style.height = "100%";
+  fill.style.width = "0%";
+  fill.style.background = "#ef4444";
+  fill.style.transition = "width 0.1s linear";
+
+  div.appendChild(fill);
+  document.body.appendChild(div);
+  balanceDiv = div;
+}
+
+function updateBalanceUI(amount: number) {
+  const fill = document.getElementById("balanceFill") as HTMLDivElement | null;
+  if (!fill) return;
+  const pct = Math.min(100, Math.abs(amount) * 2000);
+  fill.style.width = pct + "%";
+  if (pct < 40) fill.style.background = "#22c55e";
+  else if (pct < 70) fill.style.background = "#eab308";
+  else fill.style.background = "#ef4444";
+}
+
+function resetWobble() {
+  wobbleTimer = 0;
+  wobbleAmount = 0;
+  onBeam = false;
+  updateBalanceUI(0);
+}
+
+function updateWobble(deltaTime: number, pos: CANNON.Vec3) {
+  const pX = pos.x;
+  const pZ = pos.z;
+
+  const onBeam1 = pX > -0.2 && pX < 0.2 && pZ > -3 && pZ < 1;
+
+  const onBeam2 = pX > 0 && pX < 4 && pZ > 0.8 && pZ < 1.2;
+
+  const onAny = onBeam1 || onBeam2;
+
+  if (!onAny) {
+    resetWobble();
+    return;
+  }
+
+  onBeam = true;
+  wobbleTimer += deltaTime;
+  wobbleAmount = Math.sin(wobbleTimer * 4) * (0.25 * wobbleTimer);
+
+  ballBody.position.x += wobbleAmount * 0.1;
+
+  updateBalanceUI(wobbleAmount);
+}
+
 function buildFinalRoom() {
+  resetWobble();
+  ensureBalanceUI();
+
   const floorMaterialFront = new THREE.MeshStandardMaterial({
     color: COLORS.floorFinalFront,
     roughness: 0.9,
@@ -454,6 +508,7 @@ function buildFinalRoom() {
 
   const wallThickness = 0.5;
   const wallHeight = 2;
+
   makeWall(
     0,
     wallHeight / 2,
@@ -487,7 +542,7 @@ function buildFinalRoom() {
     10,
   );
 
-  const beam1Mesh = new THREE.Mesh(
+  beam1Mesh = new THREE.Mesh(
     new THREE.BoxGeometry(0.4, 0.15, 4),
     new THREE.MeshStandardMaterial({
       color: COLORS.rope,
@@ -497,15 +552,15 @@ function buildFinalRoom() {
   );
   beam1Mesh.position.set(0, 0, -1);
   addRoomMesh(beam1Mesh);
+  addRoomBody(
+    new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(0, 0, -1),
+      shape: new CANNON.Box(new CANNON.Vec3(0.2, 0.075, 2)),
+    }),
+  );
 
-  const beam1Body = new CANNON.Body({
-    mass: 0,
-    position: new CANNON.Vec3(0, 0, -1),
-    shape: new CANNON.Box(new CANNON.Vec3(0.2, 0.075, 2)),
-  });
-  addRoomBody(beam1Body);
-
-  const beam2Mesh = new THREE.Mesh(
+  beam2Mesh = new THREE.Mesh(
     new THREE.BoxGeometry(4, 0.15, 0.4),
     new THREE.MeshStandardMaterial({
       color: COLORS.rope,
@@ -515,13 +570,13 @@ function buildFinalRoom() {
   );
   beam2Mesh.position.set(2, 0, 1);
   addRoomMesh(beam2Mesh);
-
-  const beam2Body = new CANNON.Body({
-    mass: 0,
-    position: new CANNON.Vec3(2, 0, 1),
-    shape: new CANNON.Box(new CANNON.Vec3(2, 0.075, 0.2)),
-  });
-  addRoomBody(beam2Body);
+  addRoomBody(
+    new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(2, 0, 1),
+      shape: new CANNON.Box(new CANNON.Vec3(2, 0.075, 0.2)),
+    }),
+  );
 
   goalMesh = new THREE.Mesh(
     new THREE.BoxGeometry(2, 0.3, 2),
@@ -550,7 +605,6 @@ function buildFinalRoom() {
 function changeRoom(next: RoomName) {
   currentRoom = next;
   clearCurrentRoom();
-
   if (next === "main") buildMainRoom();
   else if (next === "middle") buildMiddleRoom();
   else buildFinalRoom();
@@ -580,9 +634,7 @@ export function handleObjectClick(object: THREE.Object3D) {
   const dx = playerPos.x - objPos.x;
   const dz = playerPos.z - objPos.z;
   const dist = Math.sqrt(dx * dx + dz * dz);
-  if (dist > 3) {
-    return;
-  }
+  if (dist > 3) return;
 
   const type = userData.type as string | undefined;
 
@@ -593,11 +645,8 @@ export function handleObjectClick(object: THREE.Object3D) {
     if (index >= 0) roomMeshes.splice(index, 1);
   } else if (type === "door") {
     const targetRoom = userData.targetRoom as RoomName;
-
-    if (currentRoom === "middle" && targetRoom === "final" && !puzzleSolved) {
+    if (currentRoom === "middle" && targetRoom === "final" && !puzzleSolved)
       return;
-    }
-
     changeRoom(targetRoom);
   } else if (type === "box") {
     if (!boxUnlocked && hasItem("Key")) {
@@ -607,11 +656,19 @@ export function handleObjectClick(object: THREE.Object3D) {
   }
 }
 
+let lastTime = performance.now();
+
 export function updateGameLogic() {
+  const now = performance.now();
+  const delta = (now - lastTime) / 1000;
+  lastTime = now;
+
   if (boxBody && boxMesh) {
-    boxBody.position.x = boxMesh.position.x;
-    boxBody.position.y = boxMesh.position.y;
-    boxBody.position.z = boxMesh.position.z;
+    boxBody.position.set(
+      boxMesh.position.x,
+      boxMesh.position.y,
+      boxMesh.position.z,
+    );
   }
 
   if (currentRoom === "middle" && boxBody && buttonMesh && !puzzleSolved) {
@@ -630,15 +687,12 @@ export function updateGameLogic() {
         buttonMesh.material.emissiveIntensity = 0.3;
       }
 
-      if (middleFinalDoor) {
-        setDoorUsableVisual(middleFinalDoor, true);
-      }
+      if (middleFinalDoor) setDoorUsableVisual(middleFinalDoor, true);
     }
   }
 
   if (currentRoom === "final") {
-    if (ballBody.position.y < -5) {
-      movePlayerTo(0, 1, -4);
-    }
+    updateWobble(delta, ballBody.position);
+    if (ballBody.position.y < -5) movePlayerTo(0, 1, -4);
   }
 }
