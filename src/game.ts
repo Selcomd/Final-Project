@@ -621,8 +621,15 @@ export function setupGameObjects() {
 
   ensurePlayerBall();
   ensureInventoryUI();
+  ensureSaveButtons();
   updateInventoryUI();
-  changeRoom("main");
+
+  const loaded = autoLoadGame();
+  if (!loaded) {
+    changeRoom("main");
+  }
+
+  setInterval(autoSaveGame, 2000);
 }
 
 export function handleObjectClick(object: THREE.Object3D) {
@@ -695,4 +702,99 @@ export function updateGameLogic() {
     updateWobble(delta, ballBody.position);
     if (ballBody.position.y < -5) movePlayerTo(0, 1, -4);
   }
+}
+function saveGame() {
+  const data = {
+    room: currentRoom,
+    inventory,
+    boxUnlocked,
+    puzzleSolved,
+    player: {
+      x: ballBody.position.x,
+      y: ballBody.position.y,
+      z: ballBody.position.z,
+    },
+  };
+  localStorage.setItem("gameManualSave", JSON.stringify(data));
+}
+
+function autoSaveGame() {
+  const data = {
+    room: currentRoom,
+    inventory,
+    boxUnlocked,
+    puzzleSolved,
+    player: {
+      x: ballBody.position.x,
+      y: ballBody.position.y,
+      z: ballBody.position.z,
+    },
+  };
+  localStorage.setItem("gameAutoSave", JSON.stringify(data));
+}
+
+function applyLoadedData(data: any) {
+  inventory = data.inventory || [];
+  boxUnlocked = data.boxUnlocked || false;
+  puzzleSolved = data.puzzleSolved || false;
+
+  changeRoom(data.room);
+  updateInventoryUI();
+
+  setTimeout(() => {
+    ballBody.position.set(data.player.x, data.player.y, data.player.z);
+    ballBody.velocity.set(0, 0, 0);
+  }, 50);
+}
+
+function loadGame() {
+  const raw = localStorage.getItem("gameManualSave");
+  if (!raw) return;
+  applyLoadedData(JSON.parse(raw));
+}
+
+function autoLoadGame() {
+  const raw = localStorage.getItem("gameAutoSave");
+  if (!raw) return false;
+  applyLoadedData(JSON.parse(raw));
+  return true;
+}
+
+function restartGame() {
+  localStorage.removeItem("gameManualSave");
+  localStorage.removeItem("gameAutoSave");
+  location.reload();
+}
+
+function ensureSaveButtons() {
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent = "Save";
+  saveBtn.style.position = "absolute";
+  saveBtn.style.left = "10px";
+  saveBtn.style.bottom = "10px";
+  saveBtn.style.padding = "6px 12px";
+  saveBtn.style.fontSize = "16px";
+  saveBtn.onclick = saveGame;
+
+  const loadBtn = document.createElement("button");
+  loadBtn.textContent = "Load";
+  loadBtn.style.position = "absolute";
+  loadBtn.style.left = "80px";
+  loadBtn.style.bottom = "10px";
+  loadBtn.style.padding = "6px 12px";
+  loadBtn.style.fontSize = "16px";
+  loadBtn.onclick = loadGame;
+
+  const restartBtn = document.createElement("button");
+  restartBtn.textContent = "Restart";
+  restartBtn.style.position = "absolute";
+  restartBtn.style.left = "150px";
+  restartBtn.style.bottom = "10px";
+  restartBtn.style.padding = "6px 12px";
+  restartBtn.style.fontSize = "16px";
+  restartBtn.onclick = restartGame;
+
+  document.body.appendChild(saveBtn);
+  document.body.appendChild(loadBtn);
+  document.body.appendChild(restartBtn);
 }
