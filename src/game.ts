@@ -798,3 +798,90 @@ function ensureSaveButtons() {
   document.body.appendChild(loadBtn);
   document.body.appendChild(restartBtn);
 }
+
+type ThemeMode = "light" | "dark";
+
+let currentTheme: ThemeMode = "dark";
+
+function detectSystemTheme(): ThemeMode {
+  if (window.matchMedia) {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if (mq.matches) return "dark";
+  }
+  return "light";
+}
+
+function applyTheme(mode: ThemeMode) {
+  currentTheme = mode;
+
+  if (scene) {
+    const bgColor = mode === "dark" ? 0x111827 : 0xe5f0ff;
+    const fogColor = bgColor;
+
+    scene.background = new THREE.Color(bgColor);
+
+    if (!scene.fog) {
+      scene.fog = new THREE.Fog(
+        fogColor,
+        mode === "dark" ? 20 : 40,
+        mode === "dark" ? 80 : 120,
+      );
+    } else {
+      scene.fog.color.set(fogColor);
+      if (scene.fog instanceof THREE.Fog) {
+        scene.fog.near = mode === "dark" ? 20 : 40;
+        scene.fog.far = mode === "dark" ? 80 : 120;
+      }
+    }
+
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.HemisphereLight) {
+        if (mode === "dark") {
+          obj.intensity = 0.7;
+          obj.color.set(0xe5f2ff);
+          obj.groundColor.set(0x1f2933);
+        } else {
+          obj.intensity = 1.0;
+          obj.color.set(0xffffff);
+          obj.groundColor.set(0xdbeafe);
+        }
+      } else if (obj instanceof THREE.DirectionalLight) {
+        if (mode === "dark") {
+          obj.intensity = 0.8;
+          obj.color.set(0xffffff);
+        } else {
+          obj.intensity = 1.2;
+          obj.color.set(0xffffff);
+        }
+      }
+    });
+  }
+
+  document.body.style.backgroundColor = mode === "dark" ? "#020617" : "#e5e7eb";
+}
+
+function initThemeSystem() {
+  const initial = detectSystemTheme();
+  applyTheme(initial);
+
+  if (window.matchMedia) {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const listener = (e: MediaQueryListEvent) => {
+      applyTheme(e.matches ? "dark" : "light");
+    };
+
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", listener);
+    } else if (typeof mq.addListener === "function") {
+      mq.addListener(listener);
+    }
+  }
+
+  window.setInterval(() => {
+    applyTheme(currentTheme);
+  }, 1000);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initThemeSystem();
+});
