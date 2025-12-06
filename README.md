@@ -53,6 +53,10 @@ Our workflow includes:
   and scripted interaction tests
 - **npm, ESLint, Prettier** for before-commit automation (linting, formatting,
   and typechecking)
+- **localStorage-based multi-save system** to support manual saves, loads, auto-saving, and restoration.
+- **UI instrumentation and continuous variable tracking** used in our balance bar mechanic in the final level.
+- **JSON Schema** added in F3 to provide tool-assisted validation and IntelliSense for our external DSL
+- **Browser-level theme detection** using prefers-color-scheme to integrate the player's system lighting preferences into the game
 
 These tools will help support a consistent and automated development environment
 that will meet the assignment’s automation requirements.
@@ -96,3 +100,24 @@ We modified our game, main, and renderer files to fit with the F2 requirements b
 ## Reflection (F2)
 
 Completing the F2 requirements made us rethink how interconnected even simple game features become once multiple rooms, interactive objects, and puzzle logic are introduced. F1 was focused on how things look and are created, and F2 made us use all of F1 as an engine and add more scene management, inject interaction, and add an inventory system into it to make it an actual game. We originally assumed adding puzzles and rooms would be straightforward, but integrating Cannon.js physics with Three.js interactions, like dragging objects, unlocking items, and managing multi-scene state, required more refactoring than we thought it would. Building the final L-shaped tightrope also highlighted how sensitive physics-based movement can be in a handcrafted environment. Overall, our team’s thinking shifted from building isolated features toward creating a more maintainable and systemic foundation.
+
+## How we satisfied the software requirements (F3)
+
+For F3 we had to make quite a few changes to our code to introduce new systems using our implementations of Three.js and Cannon-es.
+The main changes are:
+1. External DSL for Visual Themed Design 
+    We created a JSON-based DSL (visualTheme.json) that defines the visual style of our game for both light and dark mode, the file specifies the background color of the scene, the distance of the fog, the hemisphere light color and intensity, the settings for directional lighting, and a set body color for the background. And using a separate JSON Schema file (visualTheme.schema.json) provides external tool support, giving VS Code autocomplete, validation, and syntax highlighting.
+2. System Theme Integration
+    The game will now automatically adapt the background color based on the player's operating system or browser settings using matchMedia("(prefers-color-scheme: dark)") and dynamic Three.js fog/light/background adjustments. These changes affect our full visual atmosphere (background and more) and not just our UI colors.
+3. Save System with Autosave and Multiple Save Points
+    We introduced three new buttons for save-related systems:
+      Manual Save—Stores the game state (what room the player was in, the inventory, the puzzle state, and player positioning)
+      Manual Load—Uses the data stored in the Manual Save to restore and move everything back to where it was when the game was saved.
+      Auto-Save—Runs every two seconds to make sure that no matter what, the progress isn't lost even if the player doesn't save.
+    Saves are stored in the localStorage, allowing persistence across sessions and browser restarts.
+4. Continuous Inventory Mechanic (Balance Meter)
+    The final room now has a continuous-variable inventory mechanic. Although the player does not collect a traditional “item,” the balance value acts as a continuous quantity. Whenever the player goes onto the beam in the final room, the balance bar goes up to show how close you are to falling off; success depends on managing the variable wobble value, not on a simple binary state. This fulfills the requirement for an inventory item whose continuous quantity matters in gameplay.
+
+## Reflection (F3)
+
+F3 made us think about the project in a non-gameplay way and from a system design perspective. Adding the external DSL required us to separate design from logic, separating values and ideas from just programmers to some designer values and programmer values. Specifically with OS-level light/dark theme changes that make the game feel more integrated into the player's environment. The save system forced us to treat game state as persistent data rather than transient variables. Once autosave was added, we needed to ensure every gameplay mechanic could serialize and deserialize safely. The continuous inventory mechanic was harder than we thought it would be. We originally thought that our key would be enough but realized it wasn't, so we wanted to think of it as a design idea, and we did by designing a continuous, gameplay-impacting variable (the wobble amount) that made the final level more dynamic and interesting.

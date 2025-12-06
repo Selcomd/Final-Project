@@ -1,0 +1,27 @@
+{
+  "$schema": "./visualTheme.schema.json",
+
+  "light": {
+    "sceneBackground": "#e5f0ff",
+    "fogNear": 40,
+    "fogFar": 120,
+    "bodyBackground": "#e5e7eb",
+    "hemiIntensity": 1.0,
+    "hemiSkyColor": "#ffffff",
+    "hemiGroundColor": "#dbeafe",
+    "dirIntensity": 1.2,
+    "dirColor": "#ffffff"
+  },
+
+  "dark": {
+    "sceneBackground": "#111827",
+    "fogNear": 20,
+    "fogFar": 80,
+    "bodyBackground": "#020617",
+    "hemiIntensity": 0.7,
+    "hemiSkyColor": "#e5f2ff",
+    "hemiGroundColor": "#1f2933",
+    "dirIntensity": 0.8,
+    "dirColor": "#ffffff"
+  }
+}

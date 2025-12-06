@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Puzzle Game Visual Theme",
+  "description": "External DSL for light/dark visual themes in the puzzle game.",
+  "type": "object",
+  "properties": {
+    "light": {
+      "$ref": "#/$defs/theme"
+    },
+    "dark": {
+      "$ref": "#/$defs/theme"
+    }
+  },
+  "required": ["light", "dark"],
+  "$defs": {
+    "theme": {
+      "type": "object",
+      "properties": {
+        "sceneBackground": {
+          "type": "string",
+          "description": "Scene background color (CSS color string, e.g. #rrggbb)."
+        },
+        "fogNear": {
+          "type": "number",
+          "description": "Fog near distance."
+        },
+        "fogFar": {
+          "type": "number",
+          "description": "Fog far distance."
+        },
+        "bodyBackground": {
+          "type": "string",
+          "description": "CSS background color for the page body."
+        },
+        "hemiIntensity": {
+          "type": "number",
+          "description": "Hemisphere light intensity."
+        },
+        "hemiSkyColor": {
+          "type": "string",
+          "description": "Sky color for hemisphere light."
+        },
+        "hemiGroundColor": {
+          "type": "string",
+          "description": "Ground color for hemisphere light."
+        },
+        "dirIntensity": {
+          "type": "number",
+          "description": "Directional light intensity."
+        },
+        "dirColor": {
+          "type": "string",
+          "description": "Directional light color."
+        }
+      },
+      "required": [
+        "sceneBackground",
+        "fogNear",
+        "fogFar",
+        "bodyBackground",
+        "hemiIntensity",
+        "hemiSkyColor",
+        "hemiGroundColor",
+        "dirIntensity",
+        "dirColor"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
